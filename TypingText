@@ -1,0 +1,65 @@
+import React, { useState, useEffect } from "react";
+import { View } from "react-native";
+import PropTypes from "prop-types";
+import  from "./Text"; // add your custom text component
+
+const TypingText = ({
+  text = "Default Typing Animated Text.",
+  color = "rgb(77, 192, 103)",
+  textSize = "md",
+  typingAnimationDuration = 50,
+  blinkingCursorAnimationDuration = 190,
+  ...props
+}) => {
+  const [displayedText, setDisplayedText] = useState("");
+  const [blinkingCursorColor, setBlinkingCursorColor] = useState("transparent");
+  let index = 0;
+  let typingTimer;
+  let blinkingCursorTimer;
+
+  useEffect(() => {
+    typingAnimation();
+    blinkingCursorAnimation();
+
+    return () => {
+      clearTimeout(typingTimer);
+      clearInterval(blinkingCursorTimer);
+    };
+  }, []);
+
+  const typingAnimation = () => {
+    clearTimeout(typingTimer);
+
+    if (index < text.length) {
+      setDisplayedText((prev) => prev + text.charAt(index));
+      index++;
+
+      typingTimer = setTimeout(typingAnimation, typingAnimationDuration);
+    }
+  };
+
+  const blinkingCursorAnimation = () => {
+    blinkingCursorTimer = setInterval(() => {
+      setBlinkingCursorColor((prev) =>
+        prev === "transparent" ? color : "transparent"
+      );
+    }, blinkingCursorAnimationDuration);
+  };
+
+  return (
+    <Text {...props} type={textSize}>
+      {displayedText}
+      <Text style={{ color: blinkingCursorColor }}>|</Text>
+    </Text>
+  );
+};
+
+TypingText.propTypes = {
+  text: PropTypes.string,
+  color: PropTypes.string,
+  textSize: PropTypes.number,
+  typingAnimationDuration: PropTypes.number,
+  blinkingCursorAnimationDuration: PropTypes.number,
+};
+
+export default TypingText;
